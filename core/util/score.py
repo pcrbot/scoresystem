@@ -13,9 +13,9 @@ from hoshino.util.database import (DataBaseException, NotEnoughScoreError,
                                    score_data, score_log)
 
 score_get_limiter = DailyNumberLimiter(
-	global_score.DAILY_SCORE_GET_LIMIT, module='global_score_get')
+	global_score.DAILY_SCORE_GET_LIMIT)
 
-score_spend_limiter = DailyNumberLimiter(global_score.DAILY_SCORE_SPEND_LIMIT, module='global_score_spend')
+score_spend_limiter = DailyNumberLimiter(global_score.DAILY_SCORE_SPEND_LIMIT)
 
 
 class Score:

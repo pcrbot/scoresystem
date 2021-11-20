@@ -122,8 +122,6 @@ def init():
 		try:
 			db_name = db.__name__
 			db.bind(database(db_name))
-			if skip_database_initialize:
-				continue
 			database(db_name).connect()
 			if not db.table_exists():
 				database(db_name).create_tables([db])

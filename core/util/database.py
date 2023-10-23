@@ -7,6 +7,23 @@ import peewee
 
 from hoshino import logger
 
+class RetryOperationalError(object):
+	def execute_sql(self, sql, params=None, commit=True):
+		try:
+			cursor = super(RetryOperationalError, self).execute_sql(
+				sql, params, commit)
+		except peewee.OperationalError:
+			if not self.is_closed():
+				self.close()
+			with peewee.__exception_wrapper__:
+				cursor = self.cursor()
+				cursor.execute(sql, params or ())
+				if commit and not self.in_transaction():
+					self.commit()
+		return cursor
+class RetryMySQLDatabase(RetryOperationalError, peewee.MySQLDatabase):
+    pass
+
 try:
 	from hoshino.config.__bot__ import (MySQL_host, MySQL_password, MySQL_port,
 	                                    MySQL_username)
@@ -25,7 +42,7 @@ sqlite_filename = Database_path or os.path.expanduser(
 
 def database(class_name):
 	return \
-		peewee.MySQLDatabase(
+		RetryMySQLDatabase(
 			host=MySQL_host,
 			port=MySQL_port,
 			user=MySQL_username,
